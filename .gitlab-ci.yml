@@ -1,0 +1,63 @@
+stages:
+  - build
+  - docker-package
+  - deploy-gcp
+
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+
+# Stage 1: Verify Node Build
+node-build:
+  stage: build
+  image: node:20-alpine
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+  only:
+    - main
+    - master
+
+# Stage 2: Build & Push Docker Container
+docker-package:
+  stage: docker-package
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+  only:
+    - main
+    - master
+
+# Stage 3: Deploy to GCP Compute Engine VM (balaji - 35.244.41.125)
+deploy-gcp:
+  stage: deploy-gcp
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$GCP_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H 35.244.41.125 >> ~/.ssh/known_hosts
+  script:
+    - |
+      ssh $GCP_SSH_USERNAME@35.244.41.125 "
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
+        docker pull $IMAGE_TAG &&
+        docker stop portfolio-container || true &&
+        docker rm portfolio-container || true &&
+        docker run -d --restart=always -p 8080:80 --name portfolio-container $IMAGE_TAG &&
+        docker image prune -f
+      "
+  only:
+    - main
+    - master

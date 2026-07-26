@@ -6,6 +6,39 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP);
 
+const projects = [
+  {
+    name: "Full-Stack Job Portal",
+    category: "Web App & Cloud DevOps",
+    tools: "Node.js, Express, MySQL, AWS EC2/S3, Docker, K8s",
+  },
+  {
+    name: "Production SMTP Server",
+    category: "Server Networking & Infra",
+    tools: "Linux, DNS (MX, SPF, DKIM), SMTP Routing, Security",
+  },
+  {
+    name: "Automated CI/CD Pipelines",
+    category: "DevOps Orchestration",
+    tools: "GitLab CI/CD, Docker, Kubernetes, AWS, GCP, Azure",
+  },
+  {
+    name: "Linux Server Automation",
+    category: "System Administration",
+    tools: "Ubuntu/CentOS, Bash Scripting, Systemd, Cron Automation",
+  },
+  {
+    name: "SQL Query Optimization",
+    category: "Database Engineering",
+    tools: "MySQL, Performance Debugging, Indexing, Data Analysis",
+  },
+  {
+    name: "AI & Data Architecture",
+    category: "Emerging Technology",
+    tools: "Generative AI, Solution Architecture, Python, Data Systems",
+  },
+];
+
 const Work = () => {
   useGSAP(() => {
   let translateX: number = 0;
@@ -53,21 +86,21 @@ const Work = () => {
           My <span>Work</span>
         </h2>
         <div className="work-flex">
-          {[...Array(6)].map((_value, index) => (
+          {projects.map((project, index) => (
             <div className="work-box" key={index}>
               <div className="work-info">
                 <div className="work-title">
                   <h3>0{index + 1}</h3>
 
                   <div>
-                    <h4>Project Name</h4>
-                    <p>Category</p>
+                    <h4>{project.name}</h4>
+                    <p>{project.category}</p>
                   </div>
                 </div>
                 <h4>Tools and features</h4>
-                <p>Javascript, TypeScript, React, Threejs</p>
+                <p>{project.tools}</p>
               </div>
-              <WorkImage image="/images/placeholder.webp" alt="" />
+              <WorkImage image="/images/placeholder.webp" alt={project.name} />
             </div>
           ))}
         </div>

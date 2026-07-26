@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.gitignore
+.gemini
+*.log
+Dockerfile
+.dockerignore
+README.md
+deploy-local-to-gcp.ps1
+.github
+.gitlab-ci.yml
