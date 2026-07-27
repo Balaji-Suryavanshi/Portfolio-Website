@@ -53,9 +53,8 @@ deploy-gcp:
       ssh $GCP_SSH_USERNAME@35.244.41.125 "
         docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
         docker pull $IMAGE_TAG &&
-        docker stop portfolio-container || true &&
-        docker rm portfolio-container || true &&
-        docker run -d --restart=always -p 8080:80 --name portfolio-container $IMAGE_TAG &&
+        docker rm -f portfolio-live || true &&
+        docker run -d --restart=always -p 8080:80 --name portfolio-live $IMAGE_TAG &&
         docker image prune -f
       "
   only:
